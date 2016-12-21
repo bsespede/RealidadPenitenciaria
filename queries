@@ -1,0 +1,23 @@
+1) hacer barchart de presos relativo a total de poblacion de esa nacionalidad en el 2010 (unico año con info de censo):
+
+\copy (SELECT array_to_json(array_agg(t)) FROM (SELECT trim(presos.pais) AS pais, presos.cantidad/censo.cantidad::float AS porcentaje FROM presos JOIN censo ON presos.pais = censo.pais AND presos.año = censo.año ORDER BY porcentaje DESC) AS t) to '/home/bsespede/Drive/Facultad/electivas/ciencias de la imagen/visualizacion/RealidadPenitenciaria/json/query1a.json';
+
+\copy (SELECT array_to_json(array_agg(t)) FROM (SELECT trim(presos.pais) AS pais, presos.cantidad AS presos, censo.cantidad AS censados FROM presos JOIN censo ON presos.pais = censo.pais AND presos.año = censo.año) AS t) to '/home/bsespede/Drive/Facultad/electivas/ciencias de la imagen/visualizacion/RealidadPenitenciaria/json/query1b.json';
+
+2) comparar porcentaje de poblacion y porcentaje de presos en 2010:
+
+\copy (SELECT array_to_json(array_agg(t)) FROM(SELECT trim(pais) AS pais, censo.cantidad/(SELECT SUM(cantidad) FROM censo WHERE año = 2010)::float AS porcentaje FROM presos JOIN censo USING (año, pais) ORDER BY pais DESC) AS t) to '/home/bsespede/Drive/Facultad/electivas/ciencias de la imagen/visualizacion/RealidadPenitenciaria/json/query2a.json';
+
+\copy (SELECT array_to_json(array_agg(t)) FROM(SELECT trim(pais) AS pais, presos.cantidad/(SELECT SUM(cantidad) FROM presos WHERE año = 2010)::float AS porcentaje FROM presos JOIN censo USING (año, pais) ORDER BY pais DESC) AS t) to '/home/bsespede/Drive/Facultad/electivas/ciencias de la imagen/visualizacion/RealidadPenitenciaria/json/query2b.json';
+
+3) hacer linechart de crecimiento porcentual de presos con respecto a la cantidad inicial por pais:
+
+\copy (SELECT array_to_json(array_agg(z)) FROM (SELECT trim(p2.pais) as pais, (SELECT array_to_json(array_agg(t)) FROM (SELECT p1.año, p1.cantidad/(SELECT MIN(cantidad) FROM presos WHERE presos.pais = p1.pais)::float AS porcentaje FROM presos AS p1 WHERE p1.pais = p2.pais) AS t) AS data FROM presos AS p2 GROUP BY p2.pais ORDER BY p2.pais ASC) AS z) TO '/home/bsespede/Drive/Facultad/electivas/ciencias de la imagen/visualizacion/RealidadPenitenciaria/json/query3.json';
+
+4) hacer bubble chart de presos relativo al total de poblacion extranjera presa por año (ver que paises tienen mas insidencia de presos)
+
+\copy (SELECT array_to_json(array_agg(z)) FROM (SELECT p2.año AS año, (SELECT array_to_json(array_agg(t)) FROM (SELECT trim(p1.pais) AS pais, (p1.cantidad/(SELECT SUM(cantidad) FROM presos WHERE p1.año = año AND pais != 'Argentina')::float) AS porcentaje FROM presos AS p1 WHERE p1.pais != 'Argentina' AND p1.año=p2.año) AS t) AS data FROM presos AS p2 GROUP BY p2.año ORDER BY p2.año ASC) AS z) TO '/home/bsespede/Drive/Facultad/electivas/ciencias de la imagen/visualizacion/RealidadPenitenciaria/json/query4.json';
+
+5) heat map de lo anterior (para ver ver influencia de paises limitrofes) por año:
+
+// la query es la misma
