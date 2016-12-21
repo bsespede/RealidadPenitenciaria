@@ -6,9 +6,9 @@
 
 2) comparar porcentaje de poblacion y porcentaje de presos en 2010:
 
-\copy (SELECT array_to_json(array_agg(t)) FROM(SELECT trim(pais) AS pais, censo.cantidad/(SELECT SUM(cantidad) FROM censo WHERE año = 2010)::float AS porcentaje FROM presos JOIN censo USING (año, pais) ORDER BY pais DESC) AS t) to '/home/bsespede/Drive/Facultad/electivas/ciencias de la imagen/visualizacion/RealidadPenitenciaria/json/query2a.json';
+\copy (SELECT array_to_json(array_agg(t)) FROM(SELECT trim(pais) AS pais, censo.cantidad/(SELECT SUM(cantidad) FROM censo WHERE año = 2010)::float AS porcentaje, 'Censo' AS tipo FROM presos JOIN censo USING (año, pais) ORDER BY pais DESC) AS t) to '/home/bsespede/Drive/Facultad/electivas/ciencias de la imagen/visualizacion/RealidadPenitenciaria/json/query5a.json';
 
-\copy (SELECT array_to_json(array_agg(t)) FROM(SELECT trim(pais) AS pais, presos.cantidad/(SELECT SUM(cantidad) FROM presos WHERE año = 2010)::float AS porcentaje FROM presos JOIN censo USING (año, pais) ORDER BY pais DESC) AS t) to '/home/bsespede/Drive/Facultad/electivas/ciencias de la imagen/visualizacion/RealidadPenitenciaria/json/query2b.json';
+\copy (SELECT array_to_json(array_agg(t)) FROM(SELECT trim(pais) AS pais, presos.cantidad/(SELECT SUM(cantidad) FROM presos WHERE año = 2010)::float AS porcentaje, 'Presos' AS tipo  FROM presos JOIN censo USING (año, pais) ORDER BY pais DESC) AS t) to '/home/bsespede/Drive/Facultad/electivas/ciencias de la imagen/visualizacion/RealidadPenitenciaria/json/query5b.json';
 
 3) hacer linechart de crecimiento porcentual de presos con respecto a la cantidad inicial por pais:
 
